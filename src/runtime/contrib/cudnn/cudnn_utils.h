@@ -54,6 +54,15 @@ inline void GetStride(int nbdim, const int *dims, int *strides) {
   }
 }
 
+inline void GetCudnnStride(int nbdim,
+                           const int* dims,
+                           int* strides) {
+  int mul = 1;
+  for (int i = nbdim - 1; i >=0; --i) {
+    strides[i] = mul;
+    mul *= dims[i];
+  }
+}
 
 struct ConvEntry {
   cudnnConvolutionDescriptor_t conv_desc;
@@ -69,19 +78,26 @@ struct ConvEntry {
   runtime::DeviceAPI *cuda_api;
   void *workspace{nullptr};
   size_t workspace_size{0};
-  int group_count {0};
   ConvEntry();
   ~ConvEntry();
   void UpdateWorkspace(const size_t wsize);
   void CleanWorkspace();
 };  // ConvThreadEntry
 
+struct SoftmaxEntry {
+  cudnnSoftmaxMode_t mode;
+  cudnnDataType_t data_type;
+  cudnnTensorDescriptor_t shape_desc;
+  SoftmaxEntry();
+  ~SoftmaxEntry();
+};  // SoftmaxEntry
 
 struct CuDNNThreadEntry {
   CuDNNThreadEntry();
   ~CuDNNThreadEntry();
   cudnnHandle_t handle{nullptr};
   ConvEntry conv_entry;
+  SoftmaxEntry softmax_entry;
   runtime::DeviceAPI *cuda_api{nullptr};
   static CuDNNThreadEntry* ThreadLocal();
 };  // CuDNNThreadEntry

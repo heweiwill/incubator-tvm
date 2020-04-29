@@ -27,7 +27,6 @@
 #include <chrono>
 #include <sstream>
 #include "../graph_runtime.h"
-#include "../../object_internal.h"
 
 namespace tvm {
 namespace runtime {
@@ -177,7 +176,7 @@ PackedFunc GraphRuntimeDebug::GetFunction(
       });
   } else if (name == "debug_get_output") {
     return PackedFunc([sptr_to_self, this](TVMArgs args, TVMRetValue* rv) {
-        if (args[0].type_code() == kStr) {
+        if (args[0].type_code() == kTVMStr) {
           this->DebugGetNodeOutput(this->GetNodeIndex(args[0]), args[1]);
         } else {
           this->DebugGetNodeOutput(args[0], args[1]);
@@ -220,19 +219,5 @@ TVM_REGISTER_GLOBAL("tvm.graph_runtime_debug.create")
         << args.num_args;
     *rv = GraphRuntimeDebugCreate(args[0], args[1], GetAllContext(args));
   });
-
-TVM_REGISTER_GLOBAL("tvm.graph_runtime_debug.remote_create")
-.set_body([](TVMArgs args, TVMRetValue* rv) {
-    CHECK_GE(args.num_args, 4) << "The expected number of arguments for "
-                                  "graph_runtime.remote_create is "
-                                  "at least 4, but it has "
-                               << args.num_args;
-    void* mhandle = args[1];
-    ModuleNode* mnode = ObjectInternal::GetModuleNode(mhandle);
-    const auto& contexts = GetAllContext(args);
-    *rv = GraphRuntimeDebugCreate(
-        args[0], GetRef<Module>(mnode), contexts);
-  });
-
 }  // namespace runtime
 }  // namespace tvm

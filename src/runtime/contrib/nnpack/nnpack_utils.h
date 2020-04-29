@@ -18,13 +18,12 @@
  */
 
 /*!
- *  Copyright (c) 2017 by Contributors
  * \file Use external nnpack library call.
  */
 #ifndef TVM_RUNTIME_CONTRIB_NNPACK_NNPACK_UTILS_H_
 #define TVM_RUNTIME_CONTRIB_NNPACK_NNPACK_UTILS_H_
 #include <tvm/runtime/registry.h>
-#include <tvm/runtime/util.h>
+#include <tvm/runtime/data_type.h>
 #include <dmlc/thread_local.h>
 #include <dmlc/logging.h>
 #include <nnpack.h>

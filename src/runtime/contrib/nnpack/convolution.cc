@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -18,12 +18,11 @@
  */
 
 /*!
- *  Copyright (c) 2017 by Contributors
  * \file Use external nnpack library call.
  */
 #include <tvm/runtime/device_api.h>
 #include <tvm/runtime/registry.h>
-#include <tvm/runtime/util.h>
+#include <tvm/runtime/data_type.h>
 #include <dmlc/logging.h>
 #include <nnpack.h>
 #include "nnpack_utils.h"
@@ -41,7 +40,7 @@ TVM_REGISTER_GLOBAL("tvm.contrib.nnpack.convolution_inference")
       DLTensor *input = args[0];
       DLTensor *kernel = args[1];
       DLTensor *bias = nullptr;
-      if (args[2].type_code() == kArrayHandle) {
+      if (args[2].type_code() == kTVMDLTensorHandle) {
         bias = args[2];
       }
       DLTensor *output = args[3];
@@ -104,7 +103,7 @@ TVM_REGISTER_GLOBAL("tvm.contrib.nnpack.convolution_inference")
       const size_t workspace_elements = (workspace_size + sizeof(float) - 1) / sizeof(float);
 
       TVMContext ctx = input->ctx;
-      TVMType type_hint = input->dtype;
+      DLDataType type_hint = input->dtype;
 
       DeviceAPI* cpu_api = DeviceAPI::Get(ctx);
       void* workspace_buffer =
@@ -141,7 +140,7 @@ TVM_REGISTER_GLOBAL("tvm.contrib.nnpack.convolution_inference_without_weight_tra
       DLTensor *input = args[0];
       DLTensor *transformed_kernel = args[1];
       DLTensor *bias = nullptr;
-      if (args[2].type_code() == kArrayHandle) {
+      if (args[2].type_code() == kTVMDLTensorHandle) {
         bias = args[2];
       }
       DLTensor *output = args[3];
@@ -200,7 +199,7 @@ TVM_REGISTER_GLOBAL("tvm.contrib.nnpack.convolution_inference_without_weight_tra
       const size_t workspace_elements = (workspace_size + sizeof(float) - 1) / sizeof(float);
 
       TVMContext ctx = input->ctx;
-      TVMType type_hint = input->dtype;
+      DLDataType type_hint = input->dtype;
 
       DeviceAPI* cpu_api = DeviceAPI::Get(ctx);
       void* workspace_buffer =

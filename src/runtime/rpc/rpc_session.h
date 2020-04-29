@@ -30,7 +30,7 @@
 #include <string>
 #include <memory>
 #include <utility>
-#include "../../common/ring_buffer.h"
+#include "../../support/ring_buffer.h"
 
 namespace tvm {
 namespace runtime {
@@ -91,6 +91,16 @@ enum class RPCCode : int {
 };
 
 /*!
+ * \brief Function that unwraps a remote object to its handle.
+ * \param rpc_sess_table_index RPC session table index for validation.
+ * \param obj Handle to the object argument.
+ * \return The corresponding handle.
+ */
+typedef void* (*FUnwrapRemoteObject)(
+    int rpc_sess_table_index,
+    const TVMArgValue& obj);
+
+/*!
  * \brief Abstract channel interface used to create RPCSession.
  */
 class RPCChannel {
@@ -144,11 +154,13 @@ class RPCSession {
    * \param handle The function handle
    * \param args The arguments
    * \param rv The return value.
+   * \param funpwrap Function that takes a remote object and returns the raw handle.
    * \param fwrap Wrapper function to turn Function/Module handle into real return.
    */
   void CallFunc(RPCFuncHandle handle,
                 TVMArgs args,
                 TVMRetValue* rv,
+                FUnwrapRemoteObject funwrap,
                 const PackedFunc* fwrap);
   /*!
    * \brief Copy bytes into remote array content.
@@ -166,7 +178,7 @@ class RPCSession {
                     size_t to_offset,
                     size_t nbytes,
                     TVMContext ctx_to,
-                    TVMType type_hint);
+                    DLDataType type_hint);
   /*!
    * \brief Copy bytes from remote array content.
    * \param from The source host data.
@@ -183,7 +195,7 @@ class RPCSession {
                       size_t to_offset,
                       size_t nbytes,
                       TVMContext ctx_from,
-                      TVMType type_hint);
+                      DLDataType type_hint);
   /*!
    * \brief Get a remote timer function on ctx.
    *  This function consumes fhandle, caller should not call Free on fhandle.
@@ -258,7 +270,7 @@ class RPCSession {
   // Internal mutex
   std::recursive_mutex mutex_;
   // Internal ring buffer.
-  common::RingBuffer reader_, writer_;
+  support::RingBuffer reader_, writer_;
   // Event handler.
   std::shared_ptr<EventHandler> handler_;
   // call remote with specified function code.
